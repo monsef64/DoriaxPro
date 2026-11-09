@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Getting Started — Doriax Pro Lua Docs</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%236d7bff'/><text x='50%' y='54%' text-anchor='middle' dy='.35em' font-family='system-ui' font-weight='800' font-size='28' fill='white'>Dx</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+<header class="header">
+  <div class="header-left">
+    <button class="icon-btn burger" id="burgerBtn">☰</button>
+    <a class="brand" href="index.html"><span class="brand-mark">Dx</span><span class="brand-wordmark">Doriax<span>Pro</span></span><span class="pill" style="margin-left:6px">Lua Docs</span></a>
+    <nav class="nav">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="getting-started.html">Getting Started</a>
+      <a class="nav-link" href="api.html">API Reference</a>
+      <a class="nav-link" href="examples.html">Examples</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <label class="search-wrap"><span class="search-icon">⌕</span><input data-search class="search-input" type="search" placeholder="Search…"/><span class="search-kbd"><kbd>/</kbd></span></label>
+    <button class="icon-btn" id="themeToggle">◐</button>
+    <a class="icon-btn" href="https://github.com/monsef64/DoriaxPro" target="_blank" rel="noopener">⬡</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-group"><div class="side-title">Overview <span>▾</span></div><div class="side-links">
+      <a class="side-link" href="index.html">Home</a>
+      <a class="side-link active" href="getting-started.html">Getting Started</a>
+      <a class="side-link" href="#install">Installation</a>
+      <a class="side-link" href="#lifecycle">Lifecycle & Callbacks</a>
+      <a class="side-link" href="#project-structure">Project Structure</a>
+      <a class="side-link" href="#scene-flow">Scene Flow</a>
+      <a class="side-link" href="#input">Input & UI</a>
+      <a class="side-link" href="#tips">Tips</a>
+    </div></div>
+    <div class="side-group"><div class="side-title">API quick links <span>▾</span></div><div class="side-links">
+      <a class="side-link" href="api.html#engine">Engine</a>
+      <a class="side-link" href="api.html#scene">Scene & SceneManager</a>
+      <a class="side-link" href="api.html#entity">Entity</a>
+      <a class="side-link" href="api.html#object">Object</a>
+    </div></div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <main class="main"><div class="content prose">
+
+    <span class="eyebrow">Guide • 5 min read</span>
+    <h1 style="margin-top:10px">Getting started with Lua in Doriax Pro</h1>
+    <p class="muted">Build your first playable scene, wire input, and publish Windows & Linux x64 builds straight from CI.</p>
+
+    <div class="hr"></div>
+
+    <h2 id="install">Installation</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Option A — Download a release</h3>
+        <p>Head to <a href="https://github.com/monsef64/DoriaxPro/releases">Releases</a> and grab <code>DoriaxPro-*-windows-x64.zip</code> or <code>-linux-x64.tar.gz</code>. Unzip and run <code>doriax-editor</code>.</p>
+        <div class="example"><div class="example-head"><span>Windows • Powershell</span><button class="mini-btn" data-copy>Copy</button></div><pre>Expand-Archive DoriaxPro-v1.0.0-windows-x64.zip .
+.\dist\bin\doriax-editor.exe</pre></div>
+      </div>
+      <div class="card">
+        <h3>Option B — Build from source</h3>
+        <p>Requires CMake 3.27+, Ninja, Python 3. Linux needs the X11/Wayland dev packages from the README.</p>
+        <div class="example"><div class="example-head"><span>Linux x64</span><button class="mini-btn" data-copy>Copy</button></div><pre>sudo apt-get install build-essential cmake ninja-build pkg-config python3 \
+  libx11-dev libxcursor-dev libxi-dev libxrandr-dev libgl1-mesa-dev \
+  libwayland-dev wayland-protocols libdbus-1-dev libcurl4-openssl-dev
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target doriax-editor
+./build/doriax-editor</pre></div>
+        <div class="example"><div class="example-head"><span>Windows x64 (VS 2022)</span><button class="mini-btn" data-copy>Copy</button></div><pre>cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --target doriax-editor doriax-editor-cmd
+.\build\Release\doriax-editor.exe</pre></div>
+      </div>
+    </div>
+
+    <h2 id="project-structure">Project structure</h2>
+    <p>Every game lives under <code>engine/project/</code> (or any folder you point the editor at). The two folders the runtime preloads are:</p>
+    <div class="table-wrap"><table><thead><tr><th>Path</th><th>What goes there</th></tr></thead><tbody>
+      <tr><td><code>project/lua/</code></td><td>Your Lua scripts (<code>main.lua</code> is the entry point). Hot-reloaded in Play.</td></tr>
+      <tr><td><code>project/assets/</code></td><td>Textures, models, sounds, fonts — referenced by name inside Lua or scenes.</td></tr>
+      <tr><td><code>project/scenes/</code></td><td>Saved editor scenes (YAML). You can also build scenes purely in Lua.</td></tr>
+      <tr><td><code>engine/project/</code></td><td>Default demo project (<code>lua/main.lua</code> prints “lua file”).</td></tr>
+    </tbody></table></div>
+    <div class="example"><div class="example-head"><span>project tree</span></div><pre>DoriaxPro/
+├─ engine/project/
+│  ├─ lua/main.lua
+│  └─ assets/doriax.png
+├─ editor/            # C++ editor
+├─ LuaDocs/           # you are here — HTML docs
+├─ .github/workflows/build-windows-linux.yml
+└─ .github/workflows/release.yml</pre></div>
+
+    <h2 id="lifecycle">Lifecycle & callbacks</h2>
+    <p>The engine calls into your Lua via <code>Engine</code> hooks. Assign them in <code>main.lua</code> — they survive scene changes.</p>
+    <div class="table-wrap"><table><thead><tr><th>Hook</th><th>When</th><th>Typical use</th></tr></thead><tbody>
+      <tr><td><code>Engine.onViewLoaded</code></td><td>Viewport is ready, before first frame</td><td>Create scenes, set canvas, preload</td></tr>
+      <tr><td><code>Engine.onUpdate</code></td><td>Every frame (variable dt)</td><td>Game logic, input polling, tweens</td></tr>
+      <tr><td><code>Engine.onFixedUpdate</code></td><td>Fixed timestep (physics)</td><td>Apply forces, move kinematic bodies</td></tr>
+      <tr><td><code>Engine.onDraw</code></td><td>After scene culling, before present</td><td>Debug draws, gizmos</td></tr>
+      <tr><td><code>Engine.onPostUpdate</code></td><td>After all subsystems</td><td>Follow cameras, finalize</td></tr>
+      <tr><td><code>Engine.onKeyDown / onKeyUp / onCharInput</code></td><td>Keyboard events</td><td>Shortcuts, text input</td></tr>
+      <tr><td><code>Engine.onGamepad*</code></td><td>Gamepad connect/axis/button</td><td>Local multiplayer</td></tr>
+    </tbody></table></div>
+    <div class="example"><div class="example-head"><span>lua/main.lua — minimal lifecycle</span><button class="mini-btn" data-copy>Copy</button></div><pre>-- main.lua — runs once when the project loads
+print("lua file")
+
+Engine.onViewLoaded = function()
+  -- runs once the window & GL/Vulkan context exist
+  Engine.canvasWidth = 1280
+  Engine.scalingMode = Scaling.FITWIDTH
+  Log:info("Viewport ready")
+end
+
+Engine.onUpdate = function()
+  -- called ~60Hz, dt in Engine.deltatime
+  -- local dt = Engine.deltatime
+end</pre></div>
+
+    <h2 id="scene-flow">Scene flow</h2>
+    <p>Two ways to work — pick what fits:</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>A. Author in the editor</h3>
+        <p>Place objects visually, then drive them from Lua by name or handle.</p>
+        <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>-- find an editor-placed object
+local hero = Engine:getScene():findObject("Hero")
+-- or by EntityHandle
+local h = EntityHandle.new(scene, "Hero")</pre></div>
+      </div>
+      <div class="card">
+        <h3>B. Build purely in Lua</h3>
+        <p>No saved scene needed — create everything at runtime.</p>
+        <div class="example"><div class="example-head"><span>lua — scene from code</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+local cam = Camera.new(scene)
+cam.position = Vector3.new(0, 4, 8)
+cam:setPerspective(60, 0.1, 100)
+cam:activate()
+
+local sun = Light.new(scene)
+sun.color = Vector3.new(1, 1, 0.95)
+sun.intensity = 1.2
+sun:setDirection(-0.5, -1, -0.3)
+
+local box = Mesh.new(scene)
+box:setMesh("cube")
+box.position = Vector3.new(0, 0.5, 0)
+
+Engine:setScene(scene)</pre></div>
+      </div>
+    </div>
+    <p>Switch scenes at any time:</p>
+    <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>-- registered scenes (by id or name)
+SceneManager.loadScene("MainMenu")
+SceneManager.addChildScene("HUD")
+SceneManager.preloadScene("Level2") -- async, check progress via getPreloadProgress()</pre></div>
+
+    <h2 id="input">Input & UI</h2>
+    <p>Poll or subscribe — both work. Input respects <code>Engine.ignoreEventsHandledByUI</code> so UI eats clicks first.</p>
+    <div class="example"><div class="example-head"><span>lua — input</span><button class="mini-btn" data-copy>Copy</button></div><pre>-- polling (inside onUpdate)
+if Input:isMouseButtonDown(0) then
+  local ray = Camera.main:screenToRay(Input.mousePosition)
+  -- raycast, place objects…
+end
+
+-- events
+Engine.onKeyDown = function(key, scancode) 
+  if key == Key.ESCAPE then Engine:pauseGameEvents(true) end
+end
+
+-- mouse wheel / touch
+-- Input.mousePosition -> Vector2, Input.isTouch -> bool</pre></div>
+    <p>UI is entity-based: <code>Panel</code>, <code>Button</code>, <code>Text</code>, <code>Image</code>, <code>ProgressBar</code> — each has an anchor/pivot system via <code>AnchorPreset</code> / <code>PivotPreset</code>.</p>
+
+    <h2 id="tips">Tips & next steps</h2>
+    <div class="grid grid-2">
+      <div class="card"><h3>Use the editor’s code assist</h3><p><code>generate_api_suggestions.py</code> → <code>engine_api_suggestions.h</code> powers completion for every binding. Rebuild after adding C++ bindings.</p></div>
+      <div class="card"><h3>Prefer handles for safety</h3><p><code>EntityHandle</code> stays valid across destroy/create. Cache the handle, not the raw pointer.</p></div>
+      <div class="card"><h3>Profile with ResourceProgress</h3><p><code>ResourceProgress.hasActiveBuilds()</code> tells you when threaded texture/model builds are still running — gate your loading screen on it.</p></div>
+      <div class="card"><h3>Ship via CI</h3><p>Tag <code>v1.0.0</code> → Actions builds <code>windows-x64</code> + <code>linux-x64</code> → attaches to the release automatically. No need to build locally for players.</p></div>
+    </div>
+
+    <div class="callout" style="margin-top:16px">
+      <div class="ico">📚</div>
+      <div><strong>Next:</strong> Dive into the full <a href="api.html">API Reference</a> or copy a runnable <a href="examples.html">example</a> for sprites, physics, or particles.</div>
+    </div>
+
+    <footer class="footer">
+      <div>© Doriax Pro • <a href="index.html">Home</a> • <a href="api.html">API</a></div>
+      <div class="small muted">Getting Started • LuaDocs</div>
+    </footer>
+
+  </div></main>
+</div>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

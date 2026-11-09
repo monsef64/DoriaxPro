@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>API Reference — Doriax Pro Lua Docs</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%236d7bff'/><text x='50%' y='54%' text-anchor='middle' dy='.35em' font-family='system-ui' font-weight='800' font-size='28' fill='white'>Dx</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+<header class="header">
+  <div class="header-left">
+    <button class="icon-btn burger" id="burgerBtn">☰</button>
+    <a class="brand" href="index.html"><span class="brand-mark">Dx</span><span class="brand-wordmark">Doriax<span>Pro</span></span><span class="pill" style="margin-left:6px">API</span></a>
+    <nav class="nav">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="getting-started.html">Getting Started</a>
+      <a class="nav-link active" href="api.html">API Reference</a>
+      <a class="nav-link" href="examples.html">Examples</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <label class="search-wrap"><span class="search-icon">⌕</span><input id="apiSearch" data-search class="search-input" type="search" placeholder="Search 200+ APIs…" spellcheck="false"/><span class="search-kbd"><kbd>/</kbd></span></label>
+    <button class="icon-btn" id="themeToggle">◐</button>
+    <a class="icon-btn" href="https://github.com/monsef64/DoriaxPro" target="_blank" rel="noopener">⬡</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-group">
+      <div class="side-title">Sections <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="#engine">Engine</a>
+        <a class="side-link" href="#scene">Scene • SceneManager • BundleManager</a>
+        <a class="side-link" href="#entity">Entity & ECS</a>
+        <a class="side-link" href="#math">Math Core</a>
+        <a class="side-link" href="#shapes">Geometry</a>
+        <a class="side-link" href="#object">Object & Transform</a>
+        <a class="side-link" href="#camera">Camera • Light • Fog</a>
+        <a class="side-link" href="#render">Rendering</a>
+        <a class="side-link" href="#physics">Physics 2D / 3D</a>
+        <a class="side-link" href="#particles">Particles • Audio</a>
+        <a class="side-link" href="#ui">UI System</a>
+        <a class="side-link" href="#actions">Actions & Animation</a>
+        <a class="side-link" href="#services">Services & Utils</a>
+        <a class="side-link" href="#enums">Enums Index</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">Quick find <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="#vector3">Vector3</a>
+        <a class="side-link" href="#quaternion">Quaternion</a>
+        <a class="side-link" href="#material">Material</a>
+        <a class="side-link" href="#texture">Texture</a>
+        <a class="side-link" href="#sprite">Sprite</a>
+        <a class="side-link" href="#terrain">Terrain</a>
+        <a class="side-link" href="#ease">Ease</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">Filters <span>▾</span></div>
+      <div class="side-links" style="padding:6px 8px">
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <span style="font-size:.78rem; color:var(--text-faint); font-weight:700; width:100%">View by category:</span>
+          <small class="muted">Use top bar chips too</small>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <main class="main">
+    <div class="content">
+
+      <div class="section" style="margin-top:0">
+        <span class="eyebrow">Reference • 18 modules • x64 ready</span>
+        <h1 style="margin:8px 0 8px; font-size:2.2rem; letter-spacing:-.03em">Lua API Reference</h1>
+        <p class="muted">Every binding is exposed via <code>Luabridge3</code> from <code>engine/core/script/binding/*.cpp</code>. Search by class, method, property or enum. All signatures work on both Windows x64 (MSVC) and Linux x64 (GCC).</p>
+      </div>
+
+      <div class="api-toolbar">
+        <input data-search class="search-input" style="flex:1; min-width:200px" type="search" placeholder="Filter APIs (e.g. 'camera', 'Body2D', 'Vector3:lerp')"/>
+        <div class="filter-chips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="core">Core</button>
+          <button class="chip" data-filter="math">Math</button>
+          <button class="chip" data-filter="object">World</button>
+          <button class="chip" data-filter="render">Render</button>
+          <button class="chip" data-filter="physics">Physics</button>
+          <button class="chip" data-filter="gameplay">Gameplay</button>
+          <button class="chip" data-filter="enums">Enums</button>
+        </div>
+        <span id="resultCount" class="pill">—</span>
+      </div>
+
+      <div class="api-grid">
+
+        <!-- ENGINE -->
+        <section id="engine" class="api-card card" data-api-card data-category="core" data-search-text="Engine canvas scaling scene framerate deltatime async ResourceProgress onUpdate onDraw">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px;font-size:14px">⬡</span> <code>Engine</code> <span class="badge accent">static</span> <span class="badge">Core</span></h3>
+            <span class="pill">singleton</span>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Global engine control — canvas, scenes, lifecycle, jobs. Accessible from anywhere: <code>Engine.canvasWidth</code>.</p>
+            <h4>Properties</h4>
+            <div class="prop-list">
+              <div class="prop"><div class="prop-head"><span class="prop-name">Engine.scene</span><span class="prop-type">Scene*</span><span class="prop-access">get · set</span></div><p class="prop-desc">Main scene. Setter is thread-safe and triggers <code>onViewLoaded</code> when the view is ready.</p></div>
+              <div class="prop"><div class="prop-head"><span class="prop-name">canvasWidth / canvasHeight</span><span class="prop-type">int</span><span class="prop-access">get</span></div><p class="prop-desc">Drawable size in pixels (after scaling). Prefer <code>viewRect</code> for letterboxed area.</p></div>
+              <div class="prop"><div class="prop-head"><span class="prop-name">scalingMode</span><span class="prop-type">Scaling</span><span class="prop-access">get · set</span></div><p class="prop-desc"><code>Scaling.FITWIDTH | FITHEIGHT | LETTERBOX | CROP | STRETCH | NATIVE</code>. Controls how canvas maps to window.</p></div>
+              <div class="prop"><div class="prop-head"><span class="prop-name">deltatime / framerate</span><span class="prop-type">float</span><span class="prop-access">get</span></div><p class="prop-desc">Frame delta (s) and smoothed FPS. Use <code>deltatime</code> for frame-rate independent motion.</p></div>
+              <div class="prop"><div class="prop-head"><span class="prop-name">asyncLoading</span><span class="prop-type">bool</span><span class="prop-access">get · set</span></div><p class="prop-desc">Offloads texture/model builds to <code>ThreadPoolManager</code>. Loading screen can poll <code>ResourceProgress</code>.</p></div>
+            </div>
+            <h4>Methods</h4>
+            <div class="table-wrap"><table><thead><tr><th>Signature</th><th>Notes</th></tr></thead><tbody>
+              <tr><td><code>Engine:setCanvasSize(w:int, h:int)</code></td><td>Triggers <code>onCanvasChanged</code> and resizes framebuffers.</td></tr>
+              <tr><td><code>Engine:addSceneLayer(scene)</code></td><td>Stack a scene — useful for persistent HUD.</td></tr>
+              <tr><td><code>Engine:pauseGameEvents(bool)</code></td><td>Pauses all <code>onUpdate</code>/<code>onFixedUpdate</code> except explicit layers.</td></tr>
+              <tr><td><code>Engine:startAsyncThread() / commitThreadQueue()</code></td><td>Advanced: run work off-main-thread safely.</td></tr>
+            </tbody></table></div>
+            <h4>Events</h4>
+            <div class="table-wrap"><table><thead><tr><th>Property</th><th>Signature</th></tr></thead><tbody>
+              <tr><td><code>onUpdate</code></td><td><code>function()</code> — per frame</td></tr>
+              <tr><td><code>onFixedUpdate</code></td><td><code>function()</code> — physics tick</td></tr>
+              <tr><td><code>onViewLoaded</code></td><td><code>function()</code> — GL/Metal/Vulkan ready</td></tr>
+              <tr><td><code>onKeyDown / onKeyUp / onCharInput</code></td><td><code>function(key, scancode)</code> etc.</td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — engine basics</span><button class="mini-btn" data-copy>Copy</button></div><pre>Engine.scalingMode = Scaling.LETTERBOX
+Engine.onViewLoaded = function()
+  Log:info("canvas %dx%d", Engine.canvasWidth, Engine.canvasHeight)
+end
+Engine.onUpdate = function()
+  if Engine.framerate &lt; 30 then Log:warn("low FPS") end
+end</pre></div>
+          </div>
+        </section>
+
+        <!-- SCENE -->
+        <section id="scene" class="api-card card" data-api-card data-category="core" data-search-text="Scene SceneManager BundleManager loadScene preload holdLoading sceneCount">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◬</span> <code>Scene</code> · <code>SceneManager</code> · <code>BundleManager</code> <span class="badge green">Core</span></h3>
+            <span class="pill">Scene flow</span>
+          </div>
+          <div class="api-card-body">
+            <h4>Scene</h4>
+            <p class="small muted">A <code>Scene</code> owns an <code>EntityRegistry</code> and runs its own systems (render, physics…). Create one or load a saved editor scene.</p>
+            <div class="table-wrap"><table><thead><tr><th>API</th><th>Description</th></tr></thead><tbody>
+              <tr><td><code>Scene.new()</code></td><td>Create empty scene.</td></tr>
+              <tr><td><code>scene:findObject(name:string)</code></td><td>Find first <code>Object</code> by name.</td></tr>
+              <tr><td><code>scene:getEntityCount()</code></td><td>Live entity count.</td></tr>
+            </tbody></table></div>
+            <h4>SceneManager (static)</h4>
+            <div class="table-wrap"><table><thead><tr><th>Signature</th><th>Notes</th></tr></thead><tbody>
+              <tr><td><code>SceneManager.loadScene(id:number|string)</code></td><td>Replace main scene. Async when <code>asyncLoading</code> is on.</td></tr>
+              <tr><td><code>SceneManager.addChildScene(id)</code></td><td>Overlay a scene (HUD, pause). Removed via <code>removeChildScene</code>.</td></tr>
+              <tr><td><code>SceneManager.preloadScene(id)</code> + <code>getPreloadProgress(id)</code></td><td>Warm up async load. Use <code>holdLoading</code> / <code>releaseLoading</code> for cinematic bars.</td></tr>
+              <tr><td><code>SceneManager.sceneCount / currentSceneName / loadingProgress</code></td><td>Status properties.</td></tr>
+            </tbody></table></div>
+            <h4>BundleManager (static)</h4>
+            <p class="small muted">Reusable entity packs in a scene — shared or local.</p>
+            <div class="table-wrap"><table><thead><tr><th>Signature</th></tr></thead><tbody>
+              <tr><td><code>BundleManager.createBundle(nameOrId, scene, entityOrName)</code></td></tr>
+              <tr><td><code>BundleManager.destroyBundle(id) / getBundleNames()</code></td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>SceneManager.registerScene(1, "Level1", function()
+  local scene = Scene.new()
+  -- build…
+  Engine:setScene(scene)
+end)
+SceneManager.loadScene("Level1")</pre></div>
+          </div>
+        </section>
+
+        <!-- ENTITY -->
+        <section id="entity" class="api-card card" data-api-card data-category="core" data-search-text="EntityHandle EntityRegistry EntityManager EntityPool hasComponent addComponent removeComponent">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◈</span> <code>EntityHandle</code> · <code>EntityRegistry</code> <span class="badge">ECS</span></h3>
+            <span class="pill">Entity Pool</span>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Doriax ECS is archetype-based. <code>EntityHandle</code> is the safe, Lua-friendly reference (never dangling).</p>
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Key members</th></tr></thead><tbody>
+              <tr><td><code>EntityHandle</code></td><td><code>.entity (int) .scene</code> — <code>isValid()</code>, <code>getComponent(T)</code> via bindings, <code>Object:getEntity()</code></td></tr>
+              <tr><td><code>EntityRegistry</code></td><td>Registry per scene: <code>create() / destroy(handle)</code>, <code>findComponent(type)</code>, <code>getComponentArray(type)</code></td></tr>
+              <tr><td><code>EntityManager</code></td><td>Global convenience: mostly used by editor; prefer registry.</td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — ecs</span><button class="mini-btn" data-copy>Copy</button></div><pre>local e = scene:createEntity("Enemy")
+e:addComponent(Transform.new())
+local h = EntityHandle.new(scene, e)
+assert(h:isValid())
+-- Components are object wrappers (Object, Sprite, Body2D, etc.) — see next cards</pre></div>
+          </div>
+        </section>
+
+        <!-- MATH -->
+        <section id="math" class="api-card card" data-api-card data-category="math" data-search-text="Vector2 Vector3 Vector4 length normalize dot cross lerp">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">∑</span> <code>Vector2</code> · <code>Vector3</code> · <code>Vector4</code> <span class="badge accent">Math</span></h3>
+            <span class="pill">+ operators</span>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Type</th><th>Constructors & consts</th><th>Notable methods</th></tr></thead><tbody>
+              <tr><td><code>Vector2</code></td><td><code>Vector2.new(x,y)</code>, <code>ZERO, UNIT_X/Y, ONE</code></td><td><code>length(), normalize(), dot(v), distance(v), lerp(v,t), :normalized()</code></td></tr>
+              <tr><td id="vector3"><code>Vector3</code></td><td><code>Vector3.new(x,y,z)</code> + <code>ZERO, UNIT_X/Y/Z, UNIT_SCALE</code></td><td><code>crossProduct(v), midPoint(v), moveTowards(v, maxDist), makeFloor/Ceil</code></td></tr>
+              <tr><td><code>Vector4</code></td><td><code>Vector4.new(x,y,z,w)</code></td><td>Same plus colour helper; used for <code>Material.color</code></td></tr>
+            </tbody></table></div>
+            <p class="small muted">Operators: <code>+ - * / == &lt; unary -</code> via <code>__add</code>/<code>__mul</code> etc. <code>vectorMul</code> handles scalar vs component-wise.</p>
+            <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>local a = Vector3.new(1,0,0)
+local b = Vector3.new(0,1,0)
+local c = a:crossProduct(b) -- (0,0,1)
+local mid = a:lerp(b, 0.5)
+local dir = (b - a):normalized()</pre></div>
+          </div>
+        </section>
+
+        <section id="matrix" class="api-card card" data-api-card data-category="math" data-search-text="Matrix3 Matrix4 Quaternion slerp normalize rotationOrder">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">▭</span> <code>Matrix3</code> · <code>Matrix4</code> · <code id="quaternion">Quaternion</code> <span class="badge accent">Math</span></h3>
+            <span class="pill">transform</span>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Key API</th></tr></thead><tbody>
+              <tr><td><code>Matrix4</code></td><td><code>IDENTITY</code>, <code>translation(v) rotation(q) scale(v)</code>, <code>invert() transpose() multiply(m)</code>, <code>getViewMatrix()</code> on Camera</td></tr>
+              <tr><td><code>Matrix3</code></td><td>Normal matrix, 3×3 ops — used by <code>Object.normalMatrix</code></td></tr>
+              <tr><td><code>Quaternion</code></td><td><code>Quaternion.new(x,y,z,w)</code> or from axis-angle, <code>IDENTITY</code>, <code>slerp(q,t) nlerp(q,t) normalize()</code>, <code>getEulerAngles()</code></td></tr>
+            </tbody></table></div>
+            <p class="small muted">All types support <code>__tostring</code> for logging and <code>__eq</code>.</p>
+            <div class="example"><div class="example-head"><span>lua — quaternion slerp</span><button class="mini-btn" data-copy>Copy</button></div><pre>local a = Quaternion.new(0,0,0,1)
+local b = Quaternion.fromEuler(Vector3.new(0, math.rad(90), 0))
+local mid = a:slerp(b, 0.5)
+obj.rotation = mid -- Object.rotation accepts Quaternion</pre></div>
+          </div>
+        </section>
+
+        <section id="shapes" class="api-card card" data-api-card data-category="math" data-search-text="Ray Plane Sphere AABB OBB Rect intersects distance">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">⬢</span> <code>Ray</code> · <code>Plane</code> · <code>Sphere</code> · <code>AABB</code> · <code>OBB</code> · <code>Rect</code> <span class="badge accent">Geometry</span></h3>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Purpose</th></tr></thead><tbody>
+              <tr><td><code>Ray</code></td><td><code>Ray.new(origin:Vector3, dir:Vector3)</code> — <code>intersectsSphere/AABB/Plane()</code>, <code>getPoint(t)</code></td></tr>
+              <tr><td><code>AABB / OBB</code></td><td>Bounds — <code>contains(point)</code>, <code>intersects(ray)</code>, <code>getCenter/getSize</code></td></tr>
+              <tr><td><code>Plane / Sphere</code></td><td>Math primitives for culling, picking, probes</td></tr>
+              <tr><td><code>Rect</code></td><td>2D rect — <code>x,y,w,h</code> + <code>contains / overlaps</code>, used by <code>Engine.viewRect</code></td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+        <section id="color" class="api-card card" data-api-card data-category="math" data-search-text="Color Angle Base64 sRGB linear radToDeg degToRad">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◐</span> <code>Color</code> · <code>Angle</code> · <code>Base64</code> <span class="badge">Utils</span></h3>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>API</th></tr></thead><tbody>
+              <tr><td><code>Color</code></td><td><code>Color.linearTosRGB(c:Vector4) / sRGBToLinear(c)</code> — colour-space helpers for PBR</td></tr>
+              <tr><td><code>Angle</code></td><td><code>degToRad(radToDeg defaultToRad …)</code> — honors <code>Engine.useDegrees</code></td></tr>
+              <tr><td><code>Base64</code></td><td>Stub — encode/decode not exposed to Lua yet (binary buffers are C++ only)</td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+        <!-- OBJECT -->
+        <section id="object" class="api-card card" data-api-card data-category="object" data-search-text="Object position rotation scale visible billboard localMatrix modelMatrix getWorldPosition parent child">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◼</span> <code>Object</code> <span class="badge green">World</span> <span class="badge">ECS</span></h3>
+            <span class="pill">Transform hierarchy</span>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Base of every scene entity. Holds <code>Transform</code> and is the parent of <code>Camera</code>, <code>Mesh</code>, <code>Light</code>, etc.</p>
+            <div class="table-wrap"><table><thead><tr><th>Member</th><th>Type / signature</th></tr></thead><tbody>
+              <tr><td><code>position / rotation / scale</code></td><td><code>Vector3</code> · <code>Quaternion</code> · <code>Vector3</code> — world via <code>getWorldPosition/Rotation/Scale()</code></td></tr>
+              <tr><td><code>visible / visibleInHierarchy</code></td><td><code>bool</code> — culling respects hierarchy</td></tr>
+              <tr><td><code>billboard / cylindricalBillboard / fakeBillboard</code></td><td><code>bool</code> — face camera (true 2D or cylindrical)</td></tr>
+              <tr><td><code>localMatrix / modelMatrix / normalMatrix</code></td><td><code>Matrix4 / Matrix3</code> — local vs composed world</td></tr>
+              <tr><td><code>addChild(obj) / removeParent() / moveToTop()</code></td><td>Hierarchy — order affects 2D draw & update</td></tr>
+              <tr><td><code>getBody2D / removeBody2D / getBody3D / getRay()</code></td><td>Physics & picking shortcuts</td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — hierarchy</span><button class="mini-btn" data-copy>Copy</button></div><pre>local parent = Object.new(scene)
+local child  = Mesh.new(scene)
+parent:addChild(child)
+child.position = Vector3.new(0, 1, 0)
+print(parent:getWorldPosition()) -- includes parents
+child:setBillboard(true, true, false)</pre></div>
+          </div>
+        </section>
+
+        <section id="camera" class="api-card card" data-api-card data-category="object" data-search-text="Camera perspective ortho yfov nearClip farClip target up screenToRay framebuffer">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◎</span> <code>Camera</code> · <code>Light</code> · <code>Fog</code> <span class="badge green">World</span></h3>
+          </div>
+          <div class="api-card-body">
+            <h4>Camera : Object</h4>
+            <div class="table-wrap"><table><thead><tr><th>API</th><th>Notes</th></tr></thead><tbody>
+              <tr><td><code>Camera.new(scene[, entity])</code></td><td>Auto-registers. Call <code>camera:activate()</code> to make current.</td></tr>
+              <tr><td><code>setPerspective(yfov, near, far)</code> / <code>setOrtho(l,r,b,t)</code></td><td>Switch projection. <code>yfov</code> honours <code>Engine.useDegrees</code>.</td></tr>
+              <tr><td><code>target / up / getDirection / getRight</code></td><td>Look-at helpers. <code>disableTarget()</code> frees yaw/pitch.</td></tr>
+              <tr><td><code>screenToRay(Vector2)</code></td><td>Picking — returns <code>Ray</code>.</td></tr>
+              <tr><td><code>renderToTexture + setFramebufferSize()</code></td><td>Render-to-texture / mirrors. Filter via <code>setFramebufferFilter</code>.</td></tr>
+            </tbody></table></div>
+            <h4>Light : Object</h4>
+            <div class="table-wrap"><table><thead><tr><th>API</th></tr></thead><tbody>
+              <tr><td><code>Light.new(scene)</code> — <code>.type (LightType) .color (Vector3) .intensity .range .direction</code>, <code>setConeAngle(inner, outer)</code></td></tr>
+            </tbody></table></div>
+            <h4>Fog</h4>
+            <p class="small muted"><code>FogComponent</code> on an entity — <code>FogType.LINEAR | EXP</code>, <code>color/density/start/end</code>.</p>
+          </div>
+        </section>
+
+        <section id="mesh" class="api-card card" data-api-card data-category="object" data-search-text="Mesh Model Sprite Tilemap InstancedMesh Lines Points Polygon">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">⬣</span> <code>Mesh</code> · <code>Model</code> · <code>Sprite</code> · <code>Tilemap</code> <span class="badge green">World</span></h3>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Key API</th></tr></thead><tbody>
+              <tr><td><code>Mesh : Object</code></td><td><code>setMesh(name)</code>, <code>material</code>, <code>castShadows</code>, <code>lodEnabled</code></td></tr>
+              <tr><td><code>Model : Object</code></td><td>gltf/FBX loader — <code>setModel(path)</code>, <code>getBoneComponent(boneName)</code>, <code>playMorph()</code></td></tr>
+              <tr><td><code>Sprite : Object</code></td><td><code>setTexture(path)</code>, <code>anchorPreset/pivotPreset</code>, <code>flipX/Y</code>, <code>spriteFrame</code> (for atlases)</td></tr>
+              <tr><td><code>Tilemap : Object</code></td><td><code>setTilemap(jsonPath)</code>, <code>getTileData(x,y)</code>, <code>setTileRect()</code></td></tr>
+              <tr><td><code>InstancedMesh / Lines / Points / Polygon</code></td><td>GPU instancing & debug draws: <code>LinesComponent:addLine(a,b,color)</code></td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+        <section id="terrain" class="api-card card" data-api-card data-category="object" data-search-text="Terrain Water Mirror ReflectionProbe TerrainComponent">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◭</span> <code>Terrain</code> · <code>Water</code> · <code>Mirror</code> · <code>ReflectionProbe</code> <span class="badge green">World</span></h3>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Heightmap terrain with clipmap LOD, sculpt/paint in editor; procedural erosion & foliage layers at runtime.</p>
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Highlights</th></tr></thead><tbody>
+              <tr><td><code>Terrain : Object</code></td><td><code>heightScale, resolution</code>, <code>addFoliageLayer(layer)</code>, <code>surfaceLayers[n]</code></td></tr>
+              <tr><td><code>Water : Object</code></td><td><code>color, waveScale, normalMap</code>, <code>reflectionProbeMode</code></td></tr>
+              <tr><td><code>Mirror / ReflectionProbe</code></td><td>Planar mirrors & probes — <code>ReflectionProbeMode.CUBEMAP / PLANAR</code></td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+        <!-- RENDERING -->
+        <section id="render" class="api-card card" data-api-card data-category="render" data-search-text="Material Texture TextureFilter TextureWrap ShaderType Framebuffer PostProcessPass">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">▣</span> <code id="material">Material</code> · <code id="texture">Texture</code> · <code>Framebuffer</code> <span class="badge">Render</span></h3>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Key fields</th></tr></thead><tbody>
+              <tr><td><code>Material</code></td><td><code>albedoTexture, normalTexture, metallicRoughness, alphaMode (MaterialAlphaMode), cullingMode, customShader</code> — <code>setShaderUniform(name, Vector4/Vector3/Vector2/float)</code></td></tr>
+              <tr><td><code>Texture</code></td><td><code>filter (TextureFilter), wrap (TextureWrap), alphaBorder, type (TextureType)</code></td></tr>
+              <tr><td><code>FramebufferRender</code></td><td>Camera render-to-texture target</td></tr>
+              <tr><td><code>PostProcessPass</code></td><td><code>.shader, .enabled</code>, <code>setUniform(name, value)</code> — chain post FX</td></tr>
+            </tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Enum</th><th>Values</th></tr></thead><tbody>
+              <tr><td><code>TextureFilter</code></td><td><code>NEAREST, LINEAR, NEAREST_MIPMAP_…, LINEAR_MIPMAP_LINEAR</code></td></tr>
+              <tr><td><code>TextureWrap</code></td><td><code>REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER</code></td></tr>
+              <tr><td><code>MaterialAlphaMode</code></td><td><code>AUTO, ALPHA_OPAQUE, MASK, BLEND</code></td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — material</span><button class="mini-btn" data-copy>Copy</button></div><pre>local mat = Material.new()
+mat:setShaderUniform("u_time", Engine.systemTime)
+mat.albedoTexture = "brick_albedo.png"
+sprite.material = mat</pre></div>
+          </div>
+        </section>
+
+        <!-- PHYSICS -->
+        <section id="physics" class="api-card card" data-api-card data-category="physics" data-search-text="Body2D Body3D Joint2D Joint3D Contact2D Manifold Shape2DType BodyType">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">⚙</span> <code>Body2D</code> · <code>Body3D</code> · <code id="physics-types">Joints & Shapes</code> <span class="badge">Physics</span></h3>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Box2D (2D) and Jolt (3D) behind one API. Bodies are components attached to an <code>Object</code>.</p>
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>API</th></tr></thead><tbody>
+              <tr><td><code>Body2D : Object</code></td><td><code>bodyType (BodyType.STATIC/DYNAMIC/KINEMATIC)</code>, <code>linearVelocity (Vector2) angularVelocity</code>, <code>applyForce / applyImpulse / setShape(Shape2DType, …)</code>, events: <code>onBeginContact / onEndContact</code> via <code>FunctionSubscribe</code></td></tr>
+              <tr><td><code>Body3D : Object</code></td><td><code>motionQuality (Body3DMotionQuality), mass</code>, <code>addShape(Shape3DType, …) collideShapeResult</code>, Jolt events</td></tr>
+              <tr><td><code>Joint2D / Joint3D</code></td><td><code>Joint2DType.REVOLUTE/PRISMATIC/DISTANCE…</code> — <code>connectedBody, enableMotor, motorSpeed</code></td></tr>
+              <tr><td><code>Contact2D / Manifold2D / CollideShapeResult3D</code></td><td>Collision callbacks payloads — use in <code>onBeginContact</code></td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — dynamic body</span><button class="mini-btn" data-copy>Copy</button></div><pre>local ball = Body2D.new(scene)
+ball.bodyType = BodyType.DYNAMIC
+ball:setShape(Shape2DType.CIRCLE, 0.5)
+ball.linearVelocity = Vector2.new(0, 4)
+ball.onBeginContact:add("onHit", function(a, b) Log:info("hit") end)</pre></div>
+          </div>
+        </section>
+
+        <!-- PARTICLES / AUDIO -->
+        <section id="particles" class="api-card card" data-api-card data-category="gameplay" data-search-text="Particles rate bursts emitterShape PositionInitializer VelocityInitializer ParticlesComponent Sound SoundComponent">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">✺</span> <code>Particles</code> · <code>Sound</code> <span class="badge">Gameplay</span></h3>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">GPU particles with initializer/modifier graph; audio via <code>SoLoud</code> + <code>miniaudio</code>.</p>
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>API</th></tr></thead><tbody>
+              <tr><td><code>Particles : Object</code></td><td><code>rate, maxPerUpdate, emitter, loop, localSpace</code> — <code>setLifeInitializer(min,max)</code>, <code>setPositionInitializer(shape, …)</code>, <code>setVelocityInitializer</code>, <code>addBurst(time,count)</code>, <code>setColorGradient(…)</code></td></tr>
+              <tr><td><code>Sound : Object</code></td><td><code>Sound.new(scene) — setSound(path) play() pause() stop()</code> + <code>SoundComponent: volume, loop, attenuation (SoundAttenuation), state (SoundState)</code></td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — particles burst</span><button class="mini-btn" data-copy>Copy</button></div><pre>local fx = Particles.new(scene)
+fx.rate = 80
+fx:setConePositionInitializer(Vector3.new(0,1,0), 0.5, math.rad(25))
+fx:setVelocityInitializer(3, 5, Vector3.new(0,1,0), 0.2)
+fx:setColorGradient({{0, Vector4.new(1,1,0,1)}, {1, Vector4.new(1,0,0,0)}})
+fx:addBurst(0.0, 20)</pre></div>
+          </div>
+        </section>
+
+        <section id="ui" class="api-card card" data-api-card data-category="gameplay" data-search-text="UIComponent UIContainer UILayout Button Text Image Panel Progressbar Scrollbar AnchorPreset">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">▭</span> <code>UI</code> · <code>Panel</code> · <code>Button</code> · <code>Text</code> <span class="badge">Gameplay</span></h3>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Key fields</th></tr></thead><tbody>
+              <tr><td><code>UI : Object</code></td><td>Root — <code>anchorPreset (AnchorPreset) pivotPreset (PivotPreset)</code>, <code>anchors (Rect)</code>, <code>sizeDelta (Vector2)</code></td></tr>
+              <tr><td><code>Panel / Progressbar / Scrollbar</code></td><td>Layout — <code>ContainerType.HORIZONTAL/VERTICAL</code>, <code>ProgressbarType.FILL/RADIAL</code></td></tr>
+              <tr><td><code>Button / Text / TextEdit / Image</code></td><td><code>ButtonComponent.onClick</code>, <code>TextComponent.text + fontSize + outline</code>, <code>TextEditComponent.placeholder</code></td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+        <section id="actions" class="api-card card" data-api-card data-category="gameplay" data-search-text="Action TimedAction AlphaAction ColorAction PositionAction RotationAction ScaleAction Animation SpriteAnimation Ease EaseType ActionState">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">▶</span> <code>Action</code> · <code id="ease">Ease</code> · <code>Animation</code> <span class="badge">Gameplay</span></h3>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Tween system: compose <code>Action</code> → target property → play on any <code>Object</code>.</p>
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>API</th></tr></thead><tbody>
+              <tr><td><code>Action</code></td><td><code>Action.new(scene, target)</code>, <code>start() pause() stop() restart()</code>, <code>speed, weight, target</code></td></tr>
+              <tr><td><code>TimedAction : Action</code></td><td><code>duration, loop, pingPong</code>, <code>setFunctionType(EaseType)</code></td></tr>
+              <tr><td><code>AlphaAction / ColorAction / PositionAction / RotationAction / ScaleAction</code></td><td><code>setAction(ease, from, to) setSpinAction(speedAxis)</code></td></tr>
+              <tr><td><code>Particles / SpriteAnimation / Animation</code></td><td><code>Animation: addActionFrame(Action, startTime, duration) fadeIn/fadeOut()</code></td></tr>
+              <tr><td><code>Ease</code></td><td><code>Ease.new(EaseType)</code>, <code>.type</code>, <code>setFunction(luaFunction)</code>, static helpers: <code>Ease.linear, easeInQuad, easeOutBounce, … (32 curves)</code></td></tr>
+            </tbody></table></div>
+            <div class="example"><div class="example-head"><span>lua — ease & tween</span><button class="mini-btn" data-copy>Copy</button></div><pre>local move = PositionAction.new(scene, myObj)
+move:setAction(Ease.easeOutBack(), Vector3.new(0,0,0), Vector3.new(4,0,0))
+move.duration = 0.5
+move:start()
+
+-- custom curve
+local e = Ease.new(EaseType.CUSTOM)
+e:setFunction(function(t) return t*t*(3-2*t) end)</pre></div>
+          </div>
+        </section>
+
+        <section id="services" class="api-card card" data-api-card data-category="core" data-search-text="AdMob InAppPurchase WebPortal Input System Log ResourceProgress ThreadPoolManager UserSettings">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">◉</span> <code>AdMob</code> · <code>InAppPurchase</code> · <code>WebPortal</code> · <code>Input</code> <span class="badge">Services</span></h3>
+          </div>
+          <div class="api-card-body">
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>API</th></tr></thead><tbody>
+              <tr><td><code>Input (static)</code></td><td><code>mousePosition (Vector2), isMouseButtonDown(btn) isKeyDown(key) isGamepadConnected(id)</code>, touch & gamepad events via <code>Engine.onGamepad*</code></td></tr>
+              <tr><td><code>Log (static)</code></td><td><code>Log:info/warn/error/debug(fmt, …)</code></td></tr>
+              <tr><td><code>System</code></td><td>Scene-scoped helpers — <code>System.get(name)</code>, subsystem access</td></tr>
+              <tr><td><code>AdMob</code></td><td><code>AdMob:load(format,bannerSize,position) show() hide()</code> — enums: <code>AdMobFormat, AdMobBannerSize/Position</code></td></tr>
+              <tr><td><code>InAppPurchase</code></td><td><code>getProductDetails(sku) purchase(sku) restore()</code> — <code>ProductDetails.price, PurchaseDetails.state</code></td></tr>
+              <tr><td><code>WebPortal</code></td><td>CrazyGames/Poki/Yandex — <code>WebPortal.getType() showAd(type) getEnvironment()</code></td></tr>
+              <tr><td><code>ResourceProgress (static)</code></td><td><code>hasActiveBuilds() getOverallProgress() getAllActiveBuilds() getCurrentBuild()</code> — threaded shader/model/texture builds</td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+        <section id="enums" class="api-card card" data-api-card data-category="enums" data-search-text="enum Scaling Platform GraphicBackend TextureStrategy PrimitiveType CullingMode EaseType BodyType">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">≡</span> Enums Index <span class="badge accent">70+ namespaces</span></h3>
+            <span class="pill">AddVariable bindings</span>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Exposed via <code>beginNamespace</code> + <code>addVariable</code> in <code>*.cpp</code> bindings. Use as <code>Namespace.VALUE</code>.</p>
+            <div class="grid grid-2">
+              <div>
+                <h4>Core & display</h4>
+                <ul class="small">
+                  <li><code>Scaling</code> — FITWIDTH, FITHEIGHT, LETTERBOX, CROP, STRETCH, NATIVE</li>
+                  <li><code>Platform</code> — Windows, Linux, MacOS, iOS, Android, Web</li>
+                  <li><code>GraphicBackend</code> — GLCORE, GLES3, D3D11, METAL, WGPU</li>
+                  <li><code>CursorType</code> — DEFAULT, HAND, IBEAM, CROSSHAIR…</li>
+                  <li><code>ContainerType</code> — HORIZONTAL, VERTICAL</li>
+                </ul>
+                <h4>Physics</h4>
+                <ul class="small">
+                  <li><code>BodyType</code> — STATIC, DYNAMIC, KINEMATIC</li>
+                  <li><code>Shape2DType</code> — CIRCLE, RECT, POLYGON, …</li>
+                  <li><code>Shape3DType</code> — BOX, SPHERE, CAPSULE, CONVEX…</li>
+                  <li><code>Joint2DType / Joint3DType</code> — REVOLUTE, PRISMATIC, DISTANCE…</li>
+                  <li><code>Body3DMotionQuality</code> — DISCRETE, LINEAR_CAST</li>
+                </ul>
+                <h4>Audio / Particles</h4>
+                <ul class="small">
+                  <li><code>SoundState / SoundAttenuation</code></li>
+                  <li><code>ParticleEmitterShape</code> — SPHERE, CONE, CIRCLE…</li>
+                </ul>
+              </div>
+              <div>
+                <h4>Rendering</h4>
+                <ul class="small">
+                  <li><code>PrimitiveType</code> — TRIANGLES, LINES, POINTS…</li>
+                  <li><code>CullingMode</code> — BACK, FRONT</li>
+                  <li><code>TextureFilter / Wrap / Type</code></li>
+                  <li><code>MaterialAlphaMode</code> — AUTO, MASK, BLEND</li>
+                  <li><code>ShadowQuality / FogType / LightType</code></li>
+                </ul>
+                <h4>Actions & animation</h4>
+                <ul class="small">
+                  <li><code>EaseType</code> — 32 curves: LINEAR, QUAD_IN/OUT, ELASTIC_IN…, CUSTOM</li>
+                  <li><code>ActionState</code> — Running, Paused, Stopped</li>
+                </ul>
+                <h4>Platform services</h4>
+                <ul class="small">
+                  <li><code>AdMobFormat / BannerSize / Position …</code></li>
+                  <li><code>PurchaseState / BillingResponse / ProductType</code></li>
+                  <li><code>WebPortalType / Environment</code></li>
+                  <li><code>ResourceType</code> — Texture, Model, Shader, Sound</li>
+                </ul>
+                <h4>Other</h4>
+                <ul class="small">
+                  <li><code>AnchorPreset / PivotPreset / NavigationDirection</code></li>
+                  <li><code>RayFilter / ReflectionProbeMode</code></li>
+                  <li><code>RotationOrder / WindingOrder</code></li>
+                </ul>
+              </div>
+            </div>
+            <div class="example"><div class="example-head"><span>lua — enum usage</span><button class="mini-btn" data-copy>Copy</button></div><pre>Engine.scalingMode = Scaling.LETTERBOX
+local body = Body2D.new(scene)
+body.bodyType = BodyType.DYNAMIC
+local ease = Ease.easeOutBounce -- or EaseType.BOUNCE_OUT via Ease.new()</pre></div>
+          </div>
+        </section>
+
+        <!-- COMPONENT TABLE -->
+        <section class="api-card card" data-api-card data-category="core" data-search-text="ActionComponent AnimationComponent LightComponent SpriteComponent MeshComponent etc">
+          <div class="api-card-head">
+            <h3><span class="card-icon" style="width:32px;height:32px">▤</span> Component Reference (ECS) <span class="badge">Components</span></h3>
+          </div>
+          <div class="api-card-body">
+            <p class="small muted">Every component is a typed wrapper stored in <code>EntityRegistry</code>. Lua reads/writes via generated bindings.</p>
+            <div class="table-wrap"><table><thead><tr><th>Component</th><th>Storage</th><th>Typical fields</th></tr></thead><tbody>
+              <tr><td><code>Transform</code></td><td>core</td><td><code>position, rotation, scale, localMatrix</code></td></tr>
+              <tr><td><code>SpriteComponent / MeshComponent / ModelComponent / TilemapComponent</code></td><td>render</td><td><code>texture, material, flipX, castShadows</code></td></tr>
+              <tr><td><code>CameraComponent / LightComponent / FogComponent / MirrorComponent</code></td><td>render</td><td>See Camera/Light cards</td></tr>
+              <tr><td><code>Body2DComponent / Body3DComponent / Joint2DComponent</code></td><td>physics</td><td><code>bodyType, linearVelocity, jointDef</code></td></tr>
+              <tr><td><code>SoundComponent / ParticlesComponent</code></td><td>audio/FX</td><td><code>volume, loop, rate, emitter</code></td></tr>
+              <tr><td><code>UIComponent / ButtonComponent / TextComponent / PanelComponent</code></td><td>UI</td><td><code>anchors, size, text, onClick</code></td></tr>
+              <tr><td><code>ActionComponent / AnimationComponent / TimedActionComponent …</code></td><td>action</td><td><code>speed, duration, loop</code></td></tr>
+              <tr><td><code>TerrainComponent / WaterComponent</code></td><td>world</td><td><code>heightmap, waveScale</code></td></tr>
+            </tbody></table></div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="callout" style="margin-top:18px">
+        <div class="ico">📖</div>
+        <div><strong>Source of truth:</strong> Bindings live in <code>engine/core/script/binding/{Action,Core,ECS,Math,Object,IO,Thread,Util}ClassesLua.cpp</code>. This docs page is generated/maintained alongside them — if you add a binding, rerun the generator and refresh <code>engine_api_suggestions.h</code> for editor completion.</div>
+      </div>
+
+      <footer class="footer">
+        <div>© Doriax Pro • <a href="index.html">Home</a> • <a href="getting-started.html">Start</a> • <a href="examples.html">Examples</a></div>
+        <div class="small muted">API Reference • <span id="resultCount2" class="pill">—</span></div>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

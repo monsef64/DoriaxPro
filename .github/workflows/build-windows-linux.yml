@@ -1,0 +1,218 @@
+name: Build — Windows & Linux x64
+
+on:
+  push:
+    branches: ['**']
+    paths-ignore:
+      - '**.md'
+      - 'LuaDocs/**'
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build-windows-x64:
+    name: Windows x64 — MSVC
+    runs-on: windows-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup — MSVC & CMake / Ninja
+        run: |
+          choco install ninja cmake -y --no-progress
+          ninja --version
+          cmake --version
+
+      - name: Setup — Vulkan SDK (Windows)
+        uses: jakoch/install-vulkan-sdk-action@v1
+        with:
+          vulkan_version: 1.3.296.0
+          install_runtime: false
+          cache: true
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          git fetch --tags --quiet || true
+          VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo "dev-$(git rev-parse --short HEAD)")"
+          VERSION="${VERSION//[^A-Za-z0-9._+-]/}"
+          if [ -z "$VERSION" ]; then VERSION="unknown"; fi
+          echo "DORIAX_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version: $VERSION"
+
+      - name: Configure — x64
+        run: |
+          cmake -S . -B build `
+            -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+            -DDORIAXEDITOR_VERSION:STRING="$env:DORIAX_VERSION" `
+            -DCMAKE_INSTALL_PREFIX="$env:GITHUB_WORKSPACE/dist"
+
+      - name: Build — doriax-editor (x64)
+        run: cmake --build build --config ${{ env.BUILD_TYPE }} --target doriax-editor doriax-editor-cmd --parallel
+
+      - name: Install & Strip
+        run: cmake --install build --config ${{ env.BUILD_TYPE }} --strip
+
+      - name: Verify artifacts (x64)
+        shell: bash
+        run: |
+          ls -lah dist/bin || true
+          file dist/bin/doriax-editor.exe || true
+          test -f dist/bin/doriax-editor.exe
+
+      - name: Package — Windows x64 ZIP
+        shell: bash
+        run: |
+          cd dist
+          7z a -tzip "../DoriaxPro-${{ env.DORIAX_VERSION }}-windows-x64.zip" ./bin/* || powershell Compress-Archive -Path bin\* -DestinationPath ../DoriaxPro-${{ env.DORIAX_VERSION }}-windows-x64.zip -Force
+          ls -lh ../*.zip
+
+      - name: Upload artifact — Windows x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: DoriaxPro-windows-x64
+          path: |
+            dist/bin/**
+            DoriaxPro-*-windows-x64.zip
+          if-no-files-found: warn
+          retention-days: 7
+
+  build-linux-x64:
+    name: Linux x64 — GCC
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    container:
+      image: ubuntu:22.04
+    steps:
+      - name: Prepare container
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies — Linux x64
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential gcc g++ ninja-build pkg-config python3 wget gpg file ccache \
+            libx11-dev libxcursor-dev libxi-dev libxrandr-dev \
+            libgl1-mesa-dev libvulkan-dev \
+            libwayland-dev wayland-protocols extra-cmake-modules \
+            libdbus-1-dev libcurl4-openssl-dev patchelf desktop-file-utils appstream
+          wget -qO- https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' > /etc/apt/sources.list.d/kitware.list
+          apt-get update && apt-get install -y --no-install-recommends cmake
+          ninja --version; cmake --version; gcc --version
+          g++ -m64 --version && echo "x86_64 toolchain OK"
+          uname -m
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          git fetch --tags --quiet || true
+          VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo "dev-$(git rev-parse --short HEAD)")"
+          echo "DORIAX_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version: $VERSION"
+
+      - name: Configure — Linux x64
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+            -DDORIAXEDITOR_VERSION:STRING="$DORIAX_VERSION" \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/instdir"
+          cat build/CMakeCache.txt | grep -E "CMAKE_BUILD_TYPE|DORIAXEDITOR_VERSION|GRAPHIC_BACKEND" || true
+
+      - name: Build — doriax-editor (Linux x64)
+        run: |
+          cmake --build build --target doriax-editor --parallel
+          file build/doriax-editor || true
+
+      - name: Install & Strip — Linux x64
+        run: |
+          cmake --install build --strip
+          ls -lah instdir/bin || true
+          file instdir/bin/doriax-editor || true
+          ldd instdir/bin/doriax-editor | head -n 50 || true
+
+      - name: Package — Linux x64 tarball + AppDir
+        run: |
+          set -eux
+          mkdir -p dist
+          # Plain tarball for release
+          tar -C instdir -czf "dist/DoriaxPro-${DORIAX_VERSION}-linux-x64.tar.gz" bin lib 2>/dev/null || tar -C instdir -czf "dist/DoriaxPro-${DORIAX_VERSION}-linux-x64.tar.gz" bin
+          ls -lh dist/
+
+          # AppDir layout for AppImage (kept for release job)
+          rm -rf AppDir && mkdir -p AppDir
+          cp -a instdir AppDir/usr
+          mkdir -p AppDir/usr/share/applications AppDir/usr/share/metainfo
+          cp editor/resources/linux/doriax-editor.desktop AppDir/ || true
+          cp editor/resources/linux/org.doriax.editor.metainfo.xml AppDir/usr/share/metainfo/ || true
+          cp editor/resources/icons/linux/doriax-editor-512.png AppDir/doriax-editor.png || true
+          cp editor/resources/icons/linux/doriax-editor-256.png AppDir/usr/share/icons/hicolor/256x256/apps/doriax-editor.png 2>/dev/null || true
+
+          # Bundle libstdc++ for older distros (22.04 glibc floor)
+          mkdir -p AppDir/usr/lib
+          for lib in libstdc++.so.6 libgcc_s.so.1; do
+            p=$(ldconfig -p | grep -m1 "$lib (" | awk '{print $NF}' || true)
+            [ -z "$p" ] && p=$(find /usr/lib -name "$lib*" | head -n1 || true)
+            if [ -n "$p" ] && [ -f "$p" ]; then cp -L "$p" AppDir/usr/lib/ || true; fi
+          done
+          ls -R AppDir | head -n 100
+
+      - name: Upload artifact — Linux x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: DoriaxPro-linux-x64
+          path: |
+            instdir/bin/**
+            dist/*.tar.gz
+            AppDir/**
+          if-no-files-found: warn
+          retention-days: 7
+
+  lint-luadocs:
+    name: Validate LuaDocs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check LuaDocs exists & is valid HTML
+        run: |
+          test -d LuaDocs || (echo "LuaDocs missing" && exit 1)
+          test -f LuaDocs/index.html
+          test -f LuaDocs/api.html
+          echo "LuaDocs OK"
+          ls -lah LuaDocs/
+          # basic html validation
+          grep -q "<!doctype html>" LuaDocs/index.html -i
+          grep -q "viewport" LuaDocs/index.html

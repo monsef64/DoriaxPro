@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light dark"/>
+<title>Doriax Pro — Lua Scripting Docs</title>
+<meta name="description" content="Modern, responsive Lua API documentation for Doriax Pro engine. Entities, components, math, rendering, physics, actions, audio and more."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%236d7bff'/><text x='50%' y='54%' text-anchor='middle' dy='.35em' font-family='system-ui' font-weight='800' font-size='28' fill='white'>Dx</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css"/>
+<meta property="og:title" content="Doriax Pro — Lua Docs"/>
+<meta property="og:description" content="Fast, modern Lua scripting reference for the Doriax engine."/>
+</head>
+<body>
+<header class="header">
+  <div class="header-left">
+    <button class="icon-btn burger" id="burgerBtn" aria-label="Open menu">☰</button>
+    <a class="brand" href="index.html">
+      <span class="brand-mark">Dx</span>
+      <span class="brand-wordmark">Doriax<span>Pro</span></span>
+      <span class="pill" style="margin-left:6px">Lua Docs</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a class="nav-link active" href="index.html">Home</a>
+      <a class="nav-link" href="getting-started.html">Getting Started</a>
+      <a class="nav-link" href="api.html">API Reference</a>
+      <a class="nav-link" href="examples.html">Examples</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <label class="search-wrap" aria-label="Search docs">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" data-search type="search" placeholder="Search APIs, classes…" autocomplete="off" spellcheck="false"/>
+      <span class="search-kbd"><kbd>/</kbd></span>
+    </label>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button>
+    <a class="icon-btn" href="https://github.com/monsef64/DoriaxPro" target="_blank" rel="noopener" aria-label="GitHub">⬡</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-group">
+      <div class="side-title">Start here <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link active" href="index.html"><span class="dot"></span> Overview</a>
+        <a class="side-link" href="getting-started.html">Getting Started</a>
+        <a class="side-link" href="getting-started.html#lifecycle">Lifecycle & Scenes</a>
+        <a class="side-link" href="getting-started.html#project-structure">Project Structure</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">Core <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="api.html#engine">Engine <small>static</small></a>
+        <a class="side-link" href="api.html#scene">Scene & SceneManager</a>
+        <a class="side-link" href="api.html#entity">Entity & ECS</a>
+        <a class="side-link" href="api.html#input">Input</a>
+        <a class="side-link" href="api.html#system">System / Log</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">Math & Geometry <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="api.html#math">Vector2 • Vector3 • Vector4</a>
+        <a class="side-link" href="api.html#matrix">Matrix • Quaternion</a>
+        <a class="side-link" href="api.html#shapes">Ray • AABB • OBB • Plane</a>
+        <a class="side-link" href="api.html#color">Color • Angle</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">World & Rendering <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="api.html#object">Object & Transform</a>
+        <a class="side-link" href="api.html#camera">Camera</a>
+        <a class="side-link" href="api.html#light">Light & Fog</a>
+        <a class="side-link" href="api.html#mesh">Mesh • Model • Sprite</a>
+        <a class="side-link" href="api.html#material">Material • Texture</a>
+        <a class="side-link" href="api.html#terrain">Terrain & Water</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">Gameplay <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="api.html#physics">Physics 2D / 3D</a>
+        <a class="side-link" href="api.html#particles">Particles</a>
+        <a class="side-link" href="api.html#audio">Audio</a>
+        <a class="side-link" href="api.html#ui">UI Widgets</a>
+        <a class="side-link" href="api.html#anim">Actions & Animation</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-title">Services <span>▾</span></div>
+      <div class="side-links">
+        <a class="side-link" href="api.html#enums">Enums</a>
+        <a class="side-link" href="api.html#ads">AdMob • IAP • WebPortal</a>
+        <a class="side-link" href="api.html#resources">ResourceProgress</a>
+      </div>
+    </div>
+    <div class="side-group">
+      <div class="side-links">
+        <a class="side-link" href="examples.html">All examples →</a>
+        <a class="side-link" href="api.html">Full API index →</a>
+      </div>
+    </div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div>
+          <span class="eyebrow">⚡ Doriax Pro • Lua 5.5 • Cross-platform</span>
+          <h1>Ship games faster with a modern Lua API.</h1>
+          <p>Doriax gives you a data-oriented C++ core and a complete <strong>Lua scripting layer</strong>. Create scenes in the editor, drive logic in Lua, and export a standalone CMake project you own — for Windows, Linux, macOS, Android, iOS & Web.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="getting-started.html">Start building →</a>
+            <a class="btn btn-ghost" href="api.html">Browse API</a>
+            <a class="btn btn-ghost" href="examples.html">Examples</a>
+          </div>
+          <div class="stats">
+            <span><strong>200+</strong> classes & enums</span>
+            <span>•</span>
+            <span><strong>x64</strong> Windows & Linux builds</span>
+            <span>•</span>
+            <span>MIT licensed</span>
+          </div>
+        </div>
+
+        <div class="code-window">
+          <div class="code-head">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <div style="font-weight:700; font-size:.82rem; letter-spacing:.04em; text-transform:uppercase; color:var(--text-faint)">project/lua/main.lua</div>
+            <div class="code-actions">
+              <button class="mini-btn" data-copy>Copy</button>
+              <a class="mini-btn" href="api.html" style="display:inline-flex;align-items:center;text-decoration:none">Docs</a>
+            </div>
+          </div>
+          <div class="code-body"><pre><span class="tok-c">-- Minimal scene: create a sprite and react to input</span>
+<span class="tok-k">local</span> scene  = <span class="tok-n">Scene</span>.<span class="tok-f">new</span>()
+<span class="tok-k">local</span> player = <span class="tok-n">Sprite</span>.<span class="tok-f">new</span>(scene)
+player:setTexture(<span class="tok-s">"hero.png"</span>)
+player.position = <span class="tok-n">Vector3</span>.<span class="tok-f">new</span>(<span class="tok-s">0, 1, 0</span>)
+player:setBillboard(<span class="tok-k">true</span>, <span class="tok-k">true</span>, <span class="tok-k">false</span>)
+
+<span class="tok-k">local</span> <span class="tok-k">function</span> <span class="tok-f">update</span>()
+  <span class="tok-k">if</span> <span class="tok-n">Input</span>:isKeyDown(<span class="tok-n">Key</span>.<span class="tok-n">SPACE</span>) <span class="tok-k">then</span>
+    player:addAction(<span class="tok-n">ScaleAction</span>.<span class="tok-f">new</span>(scene, player)
+      :setAction(<span class="tok-n">Ease</span>.<span class="tok-f">easeOutBack</span>(), <span class="tok-s">1.2</span>, <span class="tok-s">0.18</span>))
+  <span class="tok-k">end</span>
+<span class="tok-k">end</span>
+
+<span class="tok-n">Engine</span>.onUpdate = update
+<span class="tok-n">Engine</span>:setScene(scene)</pre></div>
+        </div>
+      </div>
+
+      <!-- FEATURE GRID -->
+      <div class="section">
+        <div class="section-head">
+          <h2>Why developers choose Doriax</h2>
+          <p class="small muted">Editor + runtime built for iteration speed.</p>
+        </div>
+        <div class="grid grid-3">
+          <div class="card">
+            <div class="card-icon">◈</div>
+            <h3>Visual editor, real ownership</h3>
+            <p>Hierarchy, inspector, play mode, gizmos — then <em>Source Export</em> gives you a full CMake project. Change the engine.</p>
+            <div class="meta"><span class="badge accent">Editor</span><span class="badge">MIT</span></div>
+          </div>
+          <div class="card">
+            <div class="card-icon">✦</div>
+            <h3>Lua & C++ side-by-side</h3>
+            <p>Same API in both languages. Prototype in Lua, move hot paths to C++ without rewriting scenes.</p>
+            <div class="meta"><span class="badge green">Lua 5.5</span><span class="badge">Luabridge3</span></div>
+          </div>
+          <div class="card">
+            <div class="card-icon">⬢</div>
+            <h3>2D, 3D & UI in one ECS</h3>
+            <p>Sprites, tilemaps, PBR models, terrain, particles, box2D & Jolt — one Entity system.</p>
+            <div class="meta"><span class="badge">ECS</span><span class="badge">Jolt • Box2D</span></div>
+          </div>
+          <div class="card">
+            <div class="card-icon">◎</div>
+            <h3>Modern rendering</h3>
+            <p>Cascaded shadows, IBL, SSAO, SSR, mirrors, probes, live shader forking — even on Web.</p>
+            <div class="meta"><span class="badge">GL • Vulkan • Metal</span></div>
+          </div>
+          <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Builds that ship</h3>
+            <p>Windows & Linux x64 CI builds on every push, signed releases on every tag. No local setup needed.</p>
+            <div class="meta"><span class="badge accent">CI/CD</span><span class="badge">x64</span></div>
+          </div>
+          <div class="card">
+            <div class="card-icon">✣</div>
+            <h3>Portal & mobile ready</h3>
+            <p>AdMob, IAP, WebPortal SDKs for CrazyGames/Poki, plus gamepad, touch & harfbuzz text.</p>
+            <div class="meta"><span class="badge green">Mobile</span><span class="badge">Web</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK START -->
+      <div class="section">
+        <div class="section-head">
+          <h2>Quick start</h2>
+          <a class="btn btn-ghost" href="getting-started.html">Full guide →</a>
+        </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>1. Download or build from source</h3>
+            <p>Grab the latest Windows x64 / Linux x64 release, or build locally:</p>
+            <div class="example"><div class="example-head"><span>bash</span><button class="mini-btn" data-copy>Copy</button></div><pre>git clone https://github.com/monsef64/DoriaxPro.git
+cd DoriaxPro
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target doriax-editor</pre></div>
+          </div>
+          <div class="card">
+            <h3>2. Script your first scene</h3>
+            <p>In <code>project/lua/main.lua</code>, attach scripts to entities and use the Engine callbacks.</p>
+            <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>Engine.onViewLoaded = function()
+  Log:info("Game started — canvas %dx%d",
+    Engine.canvasWidth, Engine.canvasHeight)
+end
+Engine.onUpdate = function()
+  -- game logic runs here every frame
+end</pre></div>
+          </div>
+        </div>
+        <div class="callout" style="margin-top:14px">
+          <div class="ico">💡</div>
+          <div><strong>Tip:</strong> The editor shows live auto-complete for every Lua binding (powered by <code>generate_api_suggestions.py</code>). If it’s missing, re-run <code>cmake --build build --target doriax-editor</code> to regenerate <code>engine_api_suggestions.h</code>.</div>
+        </div>
+      </div>
+
+      <!-- API TEASER -->
+      <div class="section">
+        <div class="section-head">
+          <h2>API at a glance</h2>
+          <p class="small muted">Searchable • offline • light & dark</p>
+        </div>
+        <div class="grid grid-3">
+          <a class="card" href="api.html#engine" style="text-decoration:none; color:inherit">
+            <div class="card-icon">⬡</div><h3>Engine & SceneManager</h3><p>Scene stack, canvas & vsync, lifecycle hooks, async loading, entity registry.</p>
+            <div class="meta"><span class="badge">Engine.scene</span><span class="badge">SceneManager.loadScene</span></div>
+          </a>
+          <a class="card" href="api.html#object" style="text-decoration:none; color:inherit">
+            <div class="card-icon">◐</div><h3>Objects & Components</h3><p>Object • Camera • Light • Sprite • Model • Terrain • Particles — all entities, one API.</p>
+            <div class="meta"><span class="badge">object.position</span><span class="badge">getWorldPosition()</span></div>
+          </a>
+          <a class="card" href="api.html#physics" style="text-decoration:none; color:inherit">
+            <div class="card-icon">⚙</div><h3>Physics & Actions</h3><p>Box2D + Jolt bodies & joints, plus Ease / Action / Animation timeline.</p>
+            <div class="meta"><span class="badge">Body2D</span><span class="badge">Ease.easeOutBounce</span></div>
+          </a>
+          <a class="card" href="api.html#math" style="text-decoration:none; color:inherit">
+            <div class="card-icon">∑</div><h3>Math & Geometry</h3><p>Vector2/3/4, Matrix3/4, Quaternion, Rect, Ray, AABB/OBB with operator overloads.</p>
+            <div class="meta"><span class="badge">Vector3:lerp</span><span class="badge">Quaternion:slerp</span></div>
+          </a>
+          <a class="card" href="api.html#material" style="text-decoration:none; color:inherit">
+            <div class="card-icon">▣</div><h3>Rendering</h3><p>Material • Texture • Framebuffer • Shader uniforms • PostProcessPass.</p>
+            <div class="meta"><span class="badge">TextureFilter.LINEAR_MIPMAP_LINEAR</span></div>
+          </a>
+          <a class="card" href="api.html#enums" style="text-decoration:none; color:inherit">
+            <div class="card-icon">≡</div><h3>Enums & Utilities</h3><p>70+ namespaces: Scaling, BodyType, EaseType, ResourceType — plus Base64, Angle, Color.</p>
+            <div class="meta"><span class="badge accent">Enum</span><span class="badge">Scaling.FITWIDTH</span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- PLATFORMS -->
+      <div class="section">
+        <div class="section-head"><h2>Builds & releases</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Platform</th><th>Arch</th><th>Graphics</th><th>Artifact</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Windows</strong></td><td><code>x64</code> (MSVC 17/18)</td><td>GLCore • Vulkan</td><td><code>DoriaxPro-&lt;ver&gt;-windows-x64.zip</code></td></tr>
+              <tr><td><strong>Linux</strong></td><td><code>x64</code> (GCC, glibc 2.35 floor)</td><td>GLCore • Vulkan</td><td><code>DoriaxPro-&lt;ver&gt;-linux-x64.tar.gz</code> + <code>.AppImage</code></td></tr>
+              <tr><td>macOS</td><td>Universal (x86_64+arm64)</td><td>Metal</td><td>See <code>cmake.yml</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout" style="margin-top:12px">
+          <div class="ico">🚀</div>
+          <div><strong>Releases are automatic.</strong> Push a tag <code>v1.2.0</code> — GitHub Actions builds Windows x64 + Linux x64 in parallel and attaches signed zips/tars to the release. Check <a href="https://github.com/monsef64/DoriaxPro/actions/workflows/release.yml">release.yml</a> & <a href="https://github.com/monsef64/DoriaxPro/actions/workflows/build-windows-linux.yml">build-windows-linux.yml</a>.</div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <div>© Doriax Pro • MIT — <a href="https://github.com/monsef64/DoriaxPro">GitHub</a> • <a href="api.html">Lua API</a> • Built with Lua 5.5</div>
+        <div class="small muted">Docs v1.0 • Responsive • Offline-ready • <span id="resultCount" class="pill">—</span></div>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Examples — Doriax Pro Lua Docs</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%236d7bff'/><text x='50%' y='54%' text-anchor='middle' dy='.35em' font-family='system-ui' font-weight='800' font-size='28' fill='white'>Dx</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css"/>
+</head>
+<body>
+<header class="header">
+  <div class="header-left">
+    <button class="icon-btn burger" id="burgerBtn">☰</button>
+    <a class="brand" href="index.html"><span class="brand-mark">Dx</span><span class="brand-wordmark">Doriax<span>Pro</span></span><span class="pill" style="margin-left:6px">Examples</span></a>
+    <nav class="nav">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="getting-started.html">Getting Started</a>
+      <a class="nav-link" href="api.html">API Reference</a>
+      <a class="nav-link active" href="examples.html">Examples</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <label class="search-wrap"><span class="search-icon">⌕</span><input data-search class="search-input" type="search" placeholder="Search examples…"/><span class="search-kbd"><kbd>/</kbd></span></label>
+    <button class="icon-btn" id="themeToggle">◐</button>
+    <a class="icon-btn" href="https://github.com/monsef64/DoriaxPro" target="_blank" rel="noopener">⬡</a>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-group"><div class="side-title">Categories <span>▾</span></div><div class="side-links">
+      <a class="side-link" href="#starter">Starter</a>
+      <a class="side-link" href="#sprite">Sprites & Animation</a>
+      <a class="side-link" href="#input-ex">Input & Camera</a>
+      <a class="side-link" href="#physics-ex">Physics</a>
+      <a class="side-link" href="#particles-ex">Particles</a>
+      <a class="side-link" href="#ui-ex">UI</a>
+      <a class="side-link" href="#scene-ex">Scene flow</a>
+    </div></div>
+    <div class="side-group"><div class="side-title">Links <span>▾</span></div><div class="side-links">
+      <a class="side-link" href="api.html">API Reference →</a>
+      <a class="side-link" href="getting-started.html">Getting Started →</a>
+    </div></div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <main class="main"><div class="content">
+
+    <span class="eyebrow">Cookbook • Copy-paste ready</span>
+    <h1 style="margin:8px 0 8px; font-size:2.1rem; letter-spacing:-.03em">Examples</h1>
+    <p class="muted">Each snippet is a complete <code>project/lua/main.lua</code> fragment. Paste into Play and hit <span class="kbd">▶</span>. All work on Windows x64 & Linux x64.</p>
+
+    <div class="api-toolbar" style="margin-top:16px">
+      <input data-search class="search-input" style="flex:1" type="search" placeholder="Filter (e.g. 'ray', 'Button', 'Ease')"/>
+      <div class="filter-chips">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="core">Core</button>
+        <button class="chip" data-filter="gameplay">Gameplay</button>
+        <button class="chip" data-filter="object">World</button>
+      </div>
+      <span id="resultCount" class="pill">—</span>
+    </div>
+
+    <div class="api-grid">
+
+      <section id="starter" class="api-card card" data-api-card data-category="core" data-search-text="hello scene camera light starter">
+        <div class="api-card-head"><h3>1 — Hello scene</h3><span class="badge">Starter</span></div>
+        <div class="api-card-body">
+          <p class="small muted">Create a camera, sun and a floor — no editor scene needed.</p>
+          <div class="example"><div class="example-head"><span>lua/main.lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+
+local cam = Camera.new(scene)
+cam.position = Vector3.new(0, 3, 6)
+cam:setPerspective(60, 0.1, 100)
+cam:activate()
+
+local light = Light.new(scene)
+light:setDirection(-0.6, -1, -0.3)
+light.color = Vector3.new(1, 0.98, 0.92)
+light.intensity = 1.1
+
+local ground = Mesh.new(scene)
+ground:setMesh("plane")
+ground.scale = Vector3.new(10, 1, 10)
+ground.position = Vector3.new(0, 0, 0)
+
+Engine:setScene(scene)</pre></div>
+        </div>
+      </section>
+
+      <section id="sprite" class="api-card card" data-api-card data-category="object" data-search-text="sprite texture billboard spriteanimation frame anchor">
+        <div class="api-card-head"><h3>2 — Sprite with billboard</h3><span class="badge green">Rendering</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+local cam = Camera.new(scene); cam:activate()
+
+local hero = Sprite.new(scene)
+hero:setTexture("hero_idle.png")
+hero.position = Vector3.new(0, 1, 0)
+hero:setBillboard(true, true, false) -- always face camera
+hero:setAnchorPreset(AnchorPreset.CENTER)
+
+-- sprite-sheet animation
+local anim = SpriteAnimation.new(scene, hero)
+anim:setAnimation({
+  {frame = "hero_0.png", duration = 0.08},
+  {frame = "hero_1.png", duration = 0.08},
+  {frame = "hero_2.png", duration = 0.08}
+})
+anim.loop = true
+
+Engine:setScene(scene)</pre></div>
+        </div>
+      </section>
+
+      <section id="input-ex" class="api-card card" data-api-card data-category="core" data-search-text="input mouse ray camera screentoray key">
+        <div class="api-card-head"><h3>3 — Click to place + orbit camera</h3><span class="badge">Input</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua — input & picking</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+local cam = Camera.new(scene)
+cam.position = Vector3.new(6, 4, 6)
+cam:setTarget(0,0,0)
+cam:activate()
+Engine:setScene(scene)
+
+Engine.onUpdate = function()
+  -- orbit with mouse drag
+  if Input:isMouseButtonDown(0) then
+    cam:rotatePosition( Input.mouseDelta.x * 0.4, Input.mouseDelta.y * 0.4 )
+  end
+  cam:zoom( Input.mouseWheel * 0.8 ) -- wheel helper
+end
+
+Engine.onMouseDown = function(btn, x, y)
+  if btn == 0 then
+    local ray = cam:screenToRay(Vector2.new(x,y))
+    local hit = scene:raycast(ray, RayFilter.ALL)
+    if hit then Log:info("hit %s", hit.object:getName()) end
+  end
+end</pre></div>
+        </div>
+      </section>
+
+      <section id="physics-ex" class="api-card card" data-api-card data-category="gameplay" data-search-text="physics Body2D Body3D Joint applyForce Contact">
+        <div class="api-card-head"><h3>4 — Physics drop (Box2D)</h3><span class="badge">Physics</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+local cam = Camera.new(scene); cam:activate(); Engine:setScene(scene)
+
+-- ground (static)
+local ground = Body2D.new(scene)
+ground.bodyType = BodyType.STATIC
+ground.position = Vector3.new(0, -2, 0)
+ground:setShape(Shape2DType.RECT, 12, 0.6)
+
+-- stack of boxes (dynamic)
+for i = 0, 4 do
+  local b = Body2D.new(scene)
+  b.bodyType = BodyType.DYNAMIC
+  b.position = Vector3.new(0, i*1.2 + 1, 0)
+  b:setShape(Shape2DType.RECT, 1, 1)
+  b.linearVelocity = Vector2.new((math.random()-0.5)*2, 0)
+end
+
+-- listen for hits
+ground.onBeginContact:add("log", function(a, b, m)
+  Log:info("ground hit")
+end)</pre></div>
+        </div>
+      </section>
+
+      <section class="api-card card" data-api-card data-category="gameplay" data-search-text="action ease positionaction scale bounce tweeen">
+        <div class="api-card-head"><h3>5 — Tween anything with Ease</h3><span class="badge">Actions</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua — ease + action</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+local box = Mesh.new(scene); box:setMesh("cube")
+Engine:setScene(scene)
+
+local jump = PositionAction.new(scene, box)
+jump:setAction(Ease.easeOutBounce(), Vector3.new(0,0,0), Vector3.new(0,3,0))
+jump.duration = 0.6
+jump.loop = false
+
+Engine.onKeyDown = function(key)
+  if key == Key.SPACE then jump:start() end
+end
+
+-- custom curve
+local custom = Ease.new(EaseType.CUSTOM)
+custom:setFunction(function(t) return 1 - (1-t)^3 end)</pre></div>
+        </div>
+      </section>
+
+      <section id="particles-ex" class="api-card card" data-api-card data-category="gameplay" data-search-text="particles burst color gradient emitter">
+        <div class="api-card-head"><h3>6 — Particles explosion</h3><span class="badge">FX</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+Engine:setScene(scene)
+
+local boom = Particles.new(scene)
+boom.position = Vector3.new(0,1,0)
+boom.rate = 0
+boom:setLifeInitializer(0.4, 0.9)
+boom:setVelocityInitializer(5, 9, Vector3.new(0,1,0), math.pi)
+boom:setColorInitializer(Vector4.new(1,0.8,0.1,1), Vector4.new(1,0.2,0.0,1))
+boom:addColorGradientStop(0.0, Vector4.new(1,1,0,1))
+boom:addColorGradientStop(1.0, Vector4.new(1,0,0,0))
+boom:setSizeInitializer(0.15, 0.35)
+
+function explode(pos)
+  boom.position = pos
+  boom:addBurst(0, 40)
+end
+
+Engine.onMouseDown = function() explode(Vector3.new(0,1,0)) end</pre></div>
+        </div>
+      </section>
+
+      <section id="ui-ex" class="api-card card" data-api-card data-category="gameplay" data-search-text="UI Button Text Panel Progressbar anchor">
+        <div class="api-card-head"><h3>7 — Minimal UI (Button + health bar)</h3><span class="badge">UI</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua — ui</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+Engine:setScene(scene)
+
+local uiRoot = UI.new(scene)
+uiRoot:setAnchorPreset(AnchorPreset.STRETCH)
+
+local btn = Button.new(scene)
+btn:setAnchorPreset(AnchorPreset.BOTTOM_CENTER)
+btn.position = Vector3.new(0, 60, 0)
+btn.sizeDelta = Vector2.new(180, 44)
+btn:getComponent(ButtonComponent).onClick:add("play", function()
+  SceneManager.loadScene("Level1")
+end)
+
+local label = Text.new(scene)
+label.text = "Play"
+label:getComponent(TextComponent).fontSize = 18
+label:getComponent(TextComponent).color = Vector3.new(1,1,1)
+btn:addChild(label)
+
+local hp = Progressbar.new(scene)
+hp:setAnchorPreset(AnchorPreset.TOP_LEFT)
+hp.position = Vector3.new(20, -20, 0)
+hp.sizeDelta = Vector2.new(200, 14)
+hp.progress = 0.75 -- 0..1
+-- hp.progressbarType = ProgressbarType.FILL</pre></div>
+        </div>
+      </section>
+
+      <section id="scene-ex" class="api-card card" data-api-card data-category="core" data-search-text="scenemanager preload loading async holdLoading">
+        <div class="api-card-head"><h3>8 — Async scene flow with loading screen</h3><span class="badge">Scene</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua — loading</span><button class="mini-btn" data-copy>Copy</button></div><pre>Engine.asyncLoading = true
+SceneManager.setLoadingScene("LoadingScreen") -- scene id shown while loading
+
+function goToLevel2()
+  SceneManager.preloadScene("Level2")
+  SceneManager.holdLoading(true) -- keep cover up even when ready
+
+  Engine.onUpdate = function()
+    local p = SceneManager.getPreloadProgress("Level2") -- 0..1
+    -- update progress bar with p
+    if p >= 1.0 and Input:isKeyDown(Key.SPACE) then
+      SceneManager.releaseLoading()
+      SceneManager.loadScene("Level2")
+      Engine.onUpdate = nil
+    end
+  end
+end</pre></div>
+        </div>
+      </section>
+
+      <section class="api-card card" data-api-card data-category="object" data-search-text="terrain water material texture">
+        <div class="api-card-head"><h3>9 — Terrain & water (3D world)</h3><span class="badge green">World</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>local scene = Scene.new()
+local cam = Camera.new(scene); cam.position = Vector3.new(0, 18, 22); cam:setTarget(0,0,0); cam:activate()
+
+local terrain = Terrain.new(scene)
+terrain.heightScale = 12
+terrain:setHeightmap("height.png") -- grayscale
+terrain:addSurfaceLayer({ albedo="grass.png", normal="grass_n.png", tiling=32 })
+terrain:addFoliageLayer(TerrainFoliageLayer.new({ model="pine.glb", density=0.02 }))
+
+local water = Water.new(scene)
+water.position = Vector3.new(0, 1.5, 0)
+water.color = Vector4.new(0.15, 0.45, 0.65, 0.85)
+water.waveScale = 0.6
+
+Engine:setScene(scene)</pre></div>
+        </div>
+      </section>
+
+      <section class="api-card card" data-api-card data-category="core" data-search-text="admob webportal inapp purchase">
+        <div class="api-card-head"><h3>10 — Ads & portals</h3><span class="badge">Services</span></div>
+        <div class="api-card-body">
+          <div class="example"><div class="example-head"><span>lua</span><button class="mini-btn" data-copy>Copy</button></div><pre>-- AdMob banner
+AdMob:load(AdMobFormat.BANNER, AdMobBannerSize.ADAPTIVE, AdMobBannerPosition.BOTTOM)
+AdMob:show()
+
+-- Web portal (CrazyGames / Poki / Yandex)
+if WebPortal.getType() ~= WebPortalType.NONE then
+  Log:info("portal %s", WebPortal.getEnvironment())
+  WebPortal.showAd(WebPortalAdType.REWARDED, function(rewarded)
+    if rewarded then grantCoins(100) end
+  end)
+end</pre></div>
+        </div>
+      </section>
+
+    </div>
+
+    <footer class="footer">
+      <div>© Doriax Pro • <a href="index.html">Home</a> • <a href="api.html">API</a></div>
+      <div class="small muted">Examples • Copy, run, ship</div>
+    </footer>
+  </div></main>
+</div>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

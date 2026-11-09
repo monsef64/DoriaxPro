@@ -1,0 +1,394 @@
+name: Release — Windows & Linux x64
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'release-*'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag (e.g. v1.0.0) — used as archive name when triggered manually'
+        required: false
+        default: ''
+      draft:
+        description: 'Create as draft release?'
+        type: boolean
+        required: false
+        default: false
+      prerelease:
+        description: 'Mark as pre-release?'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BUILD_TYPE: Release
+  SIGNPATH_ORGANIZATION_ID: 71ade14e-ea98-448b-b32f-954d41e71ef9
+  SIGNPATH_PROJECT_SLUG: doriax
+
+jobs:
+  build-windows-x64-release:
+    name: Release Build — Windows x64
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    outputs:
+      version: ${{ steps.resolve-version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup — MSVC / CMake / Ninja
+        run: |
+          choco install ninja cmake -y --no-progress
+          ninja --version; cmake --version
+          cl 2>&1 | Select-Object -First 2
+
+      - name: Setup — Vulkan SDK
+        uses: jakoch/install-vulkan-sdk-action@v1
+        with:
+          vulkan_version: 1.3.296.0
+          install_runtime: false
+          cache: true
+
+      - name: Resolve version
+        id: resolve-version
+        shell: bash
+        run: |
+          set -e
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            git fetch --tags --quiet || true
+            VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo "dev-$(git rev-parse --short HEAD)")"
+          fi
+          VERSION="${VERSION//[^A-Za-z0-9._+-]/}"
+          if [ -z "$VERSION" ]; then VERSION="unknown"; fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "DORIAX_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Resolved version: $VERSION"
+
+      - name: Configure — x64 Release
+        run: |
+          $version = "${{ steps.resolve-version.outputs.version }}"
+          cmake -S . -B build `
+            -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+            -DDORIAXEDITOR_VERSION:STRING="$version" `
+            -DCMAKE_INSTALL_PREFIX="$env:GITHUB_WORKSPACE/instdir" `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+
+      - name: Build — x64 Release
+        run: cmake --build build --config ${{ env.BUILD_TYPE }} --target doriax-editor doriax-editor-cmd --parallel
+
+      - name: Install & Strip
+        run: cmake --install build --config ${{ env.BUILD_TYPE }} --strip
+
+      - name: Bundle runtime & verify
+        shell: bash
+        run: |
+          ls -lah instdir/bin
+          for dll in libstdc++-6.dll libgcc_s_seh-1.dll libwinpthread-1.dll; do
+            if [ -f "instdir/bin/$dll" ]; then echo "bundled $dll"; fi
+          done
+          test -f instdir/bin/doriax-editor.exe
+          test -f instdir/bin/doriax-editor-cmd.exe || echo "cmd exe optional"
+
+      - name: Package — Windows x64
+        shell: bash
+        run: |
+          set -eux
+          VERSION="${{ steps.resolve-version.outputs.version }}"
+          mkdir -p release
+          # Full install tree as zip (what users download)
+          (cd instdir && zip -qr "$GITHUB_WORKSPACE/release/DoriaxPro-${VERSION}-windows-x64.zip" .)
+          # Bin-only zip for quick download
+          (cd instdir/bin && zip -qr "$GITHUB_WORKSPACE/release/DoriaxPro-${VERSION}-windows-x64-bin.zip" .)
+          # Checksums
+          cd release && sha256sum *.zip > SHA256SUMS-windows.txt && cat SHA256SUMS-windows.txt
+          ls -lh release/
+
+      - name: Upload artifact — Windows x64 (release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-x64
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
+
+  build-linux-x64-release:
+    name: Release Build — Linux x64
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:22.04
+    timeout-minutes: 120
+    outputs:
+      version: ${{ steps.resolve-version.outputs.version }}
+    steps:
+      - name: Prepare container
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies — Linux x64
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential gcc g++ ninja-build pkg-config python3 wget gpg file ccache \
+            libx11-dev libxcursor-dev libxi-dev libxrandr-dev \
+            libgl1-mesa-dev libvulkan-dev \
+            libwayland-dev wayland-protocols extra-cmake-modules \
+            libdbus-1-dev libcurl4-openssl-dev patchelf desktop-file-utils appstream fuse
+          wget -qO- https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' > /etc/apt/sources.list.d/kitware.list
+          apt-get update && apt-get install -y --no-install-recommends cmake
+          ninja --version; cmake --version; gcc -dumpmachine; gcc --version | head -n1
+          uname -m
+
+      - name: Resolve version
+        id: resolve-version
+        shell: bash
+        run: |
+          set -e
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            git fetch --tags --quiet || true
+            VERSION="$(git describe --tags --always --dirty 2>/dev/null || echo "dev-$(git rev-parse --short HEAD)")"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "DORIAX_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Resolved version: $VERSION"
+
+      - name: Configure — Linux x64 Release
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+            -DDORIAXEDITOR_VERSION:STRING="${{ steps.resolve-version.outputs.version }}" \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/instdir"
+
+      - name: Build — Linux x64 Release
+        run: |
+          cmake --build build --target doriax-editor --parallel
+          ls -lh build/doriax-editor || true
+          file build/doriax-editor
+
+      - name: Install & Strip
+        run: |
+          cmake --install build --strip
+          ls -lah instdir/bin
+          file instdir/bin/doriax-editor
+          ldd instdir/bin/doriax-editor | head -n 20
+
+      - name: Package — Linux x64 (tar.gz + AppImage)
+        shell: bash
+        run: |
+          set -eux
+          VERSION="${{ steps.resolve-version.outputs.version }}"
+          mkdir -p release AppDir
+
+          # 1) Standard tarball
+          tar -C instdir -czf "release/DoriaxPro-${VERSION}-linux-x64.tar.gz" bin lib 2>/dev/null || tar -C instdir -czf "release/DoriaxPro-${VERSION}-linux-x64.tar.gz" bin
+          # 2) AppDir for AppImage
+          cp -a instdir AppDir/usr
+          cp editor/resources/linux/doriax-editor.desktop AppDir/ 2>/dev/null || cp editor/resources/linux/doriax-editor.desktop AppDir/doriax-editor.desktop
+          cp editor/resources/icons/linux/doriax-editor-512.png AppDir/doriax-editor.png 2>/dev/null || true
+          mkdir -p AppDir/usr/share/metainfo
+          cp editor/resources/linux/org.doriax.editor.metainfo.xml AppDir/usr/share/metainfo/ 2>/dev/null || true
+          # Bundle libstdc++ for portability
+          mkdir -p AppDir/usr/lib
+          for lib in libstdc++.so.6 libgcc_s.so.1; do
+            p=$(ldconfig -p 2>/dev/null | grep -m1 "$lib" | awk '{print $NF}' || true)
+            [ -z "$p" ] && p=$(find /usr/lib -name "${lib}*" 2>/dev/null | head -n1 || true)
+            if [ -n "$p" ] && [ -f "$p" ]; then cp -L "$p" AppDir/usr/lib/ 2>/dev/null || true; fi
+          done
+          # 3) AppImage via linuxdeploy (best-effort; falls back to tarball only if unavailable)
+          if command -v wget >/dev/null; then
+            wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /tmp/linuxdeploy 2>/dev/null || true
+            wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /tmp/appimagetool 2>/dev/null || true
+            chmod +x /tmp/linuxdeploy /tmp/appimagetool 2>/dev/null || true
+            if [ -x /tmp/appimagetool ]; then
+              /tmp/appimagetool --appimage-extract 2>/dev/null || true
+              if [ -x squashfs-root/AppRun ]; then
+                VERSION="${VERSION}" ARCH=x86_64 squashfs-root/AppRun AppDir 2>/dev/null || true
+                mv -f Doriax*.AppImage "release/DoriaxPro-${VERSION}-linux-x64.AppImage" 2>/dev/null || true
+                ls -lh release/*.AppImage 2>/dev/null || echo "AppImage build skipped (no FUSE in container)"
+              fi
+            fi
+          fi
+          # 4) Checksums
+          cd release && sha256sum DoriaxPro-* > SHA256SUMS-linux.txt && cat SHA256SUMS-linux.txt
+          ls -lh release/
+
+      - name: Upload artifact — Linux x64 (release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-linux-x64
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    name: Publish GitHub Release (Windows + Linux x64)
+    needs: [build-windows-x64-release, build-linux-x64-release]
+    # Only when we have a tag or a manual release trigger — never on plain pushes.
+    if: >
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      startsWith(github.ref, 'refs/tags/') ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Resolve version for publish
+        id: ver
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            VERSION="${{ needs.build-windows-x64-release.outputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: release-*
+          merge-multiple: true
+
+      - name: Inspect artifacts
+        run: |
+          ls -R artifacts || true
+          mkdir -p release
+          cp artifacts/* release/ 2>/dev/null || cp -r artifacts/release-*/* release/ 2>/dev/null || true
+          ls -lh release/
+          cat release/SHA256SUMS-*.txt 2>/dev/null || true
+          # Merge checksums
+          cat release/SHA256SUMS-*.txt > release/SHA256SUMS.txt 2>/dev/null || sha256sum release/DoriaxPro-* > release/SHA256SUMS.txt
+
+      - name: Create / update GitHub Release — x64 artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.version }}
+          name: DoriaxPro ${{ steps.ver.outputs.version }} — Windows & Linux x64
+          body: |
+            Automated release for **Windows x64** and **Linux x64**.
+
+            ### Downloads
+            | Platform | Archive |
+            |---|---|
+            | **Windows x64 (MSVC)** | `DoriaxPro-${{ steps.ver.outputs.version }}-windows-x64.zip` |
+            | **Linux x64 (GCC)** | `DoriaxPro-${{ steps.ver.outputs.version }}-linux-x64.tar.gz` |
+            | **Linux x64 AppImage** | `DoriaxPro-${{ steps.ver.outputs.version }}-linux-x64.AppImage` *(if available)* |
+
+            ### Verify
+            ```
+            sha256sum -c SHA256SUMS.txt
+            ```
+
+            Built from `${{ github.sha }}` via `release.yml`.
+            See `LuaDocs/` for the updated Lua scripting reference.
+
+            ---
+            *This release was created automatically by the Windows & Linux x64 release workflow.*
+          draft: ${{ inputs.draft == 'true' }}
+          prerelease: ${{ inputs.prerelease == 'true' }}
+          generate_release_notes: true
+          fail_on_unmatched_files: false
+          files: |
+            release/DoriaxPro-*-windows-x64.zip
+            release/DoriaxPro-*-windows-x64-bin.zip
+            release/DoriaxPro-*-linux-x64.tar.gz
+            release/DoriaxPro-*-linux-x64.AppImage
+            release/SHA256SUMS*.txt
+            release/SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fallback — gh CLI upload (if softprops missed)
+        if: failure()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          ls -lh release/
+          # Ensure release exists
+          gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$VERSION" --title "DoriaxPro $VERSION — Windows & Linux x64" --generate-notes --repo "$GITHUB_REPOSITORY"
+          gh release upload "$VERSION" release/DoriaxPro-* release/SHA256SUMS* --clobber --repo "$GITHUB_REPOSITORY"
+
+  publish-luadocs:
+    name: Publish LuaDocs to Pages
+    needs: [build-windows-x64-release, build-linux-x64-release]
+    if: >
+      (github.event_name == 'release' && github.event.action == 'published') ||
+      startsWith(github.ref, 'refs/tags/') ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Validate LuaDocs
+        run: |
+          test -d LuaDocs
+          test -f LuaDocs/index.html
+          ls -lh LuaDocs/
+      - name: Upload LuaDocs artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: LuaDocs
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
